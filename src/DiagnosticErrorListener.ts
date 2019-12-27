@@ -56,11 +56,10 @@ export class DiagnosticErrorListener implements ParserErrorListener {
 		recognizer: Recognizer<T, any>,
 		offendingSymbol: T | undefined,
 		line: number,
-		charPositionInLine: number,
+		column: number,
 		/*@NotNull*/
 		msg: string,
-		e: RecognitionException | undefined): void
-	{
+		e: RecognitionException | undefined): void {
 		// intentionally empty
 	}
 

@@ -88,7 +88,7 @@ export class XPath {
 		}
 		catch (e) {
 			if (e instanceof LexerNoViableAltException) {
-				let pos: number = lexer.charPositionInLine;
+				let pos: number = lexer.column;
 				let msg: string = "Invalid tokens or characters at index " + pos + " in path '" + path + "' -- " + e.message;
 				throw new RangeError(msg);
 			}

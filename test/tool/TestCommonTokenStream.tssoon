@@ -40,7 +40,7 @@ export class TestCommonTokenStream extends TestBufferedTokenStream {
                 @Override
                 get sourceName(): string { return "test"; }
 				@Override
-				get charPositionInLine(): number {
+				get column(): number {
 					return 0;
 				}
 				@Override
@@ -112,7 +112,7 @@ export class TestCommonTokenStream extends TestBufferedTokenStream {
 				@Override
 				get sourceName(): string { return "test"; }
 				@Override
-				get charPositionInLine(): number {
+				get column(): number {
 					return 0;
 				}
 				@Override
@@ -192,7 +192,7 @@ export class TestCommonTokenStream extends TestBufferedTokenStream {
 			}
 
 			@Override
-			get charPositionInLine(): number {
+			get column(): number {
 				return 0;
 			}
 
@@ -240,7 +240,7 @@ export class TestCommonTokenStream extends TestBufferedTokenStream {
 			}
 
 			@Override
-			get charPositionInLine(): number {
+			get column(): number {
 				return 0;
 			}
 

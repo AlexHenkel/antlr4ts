@@ -28,7 +28,7 @@ export interface TokenFactory {
 		start: number,
 		stop: number,
 		line: number,
-		charPositionInLine: number): Token;
+		column: number): Token;
 
 	/** Generically useful */
 	//@NotNull

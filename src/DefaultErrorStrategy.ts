@@ -140,7 +140,7 @@ export class DefaultErrorStrategy implements ANTLRErrorStrategy {
 		// if we've already reported an error and have not matched a token
 		// yet successfully, don't report any errors.
 		if (this.inErrorRecoveryMode(recognizer)) {
-//			System.err.print("[SPURIOUS] ");
+			//			System.err.print("[SPURIOUS] ");
 			return; // don't report spurious errors
 		}
 		this.beginErrorCondition(recognizer);
@@ -179,11 +179,11 @@ export class DefaultErrorStrategy implements ANTLRErrorStrategy {
 	 */
 	@Override
 	public recover(recognizer: Parser, e: RecognitionException): void {
-//		System.out.println("recover in "+recognizer.getRuleInvocationStack()+
-//						   " index="+recognizer.inputStream.index+
-//						   ", lastErrorIndex="+
-//						   lastErrorIndex+
-//						   ", states="+lastErrorStates);
+		//		System.out.println("recover in "+recognizer.getRuleInvocationStack()+
+		//						   " index="+recognizer.inputStream.index+
+		//						   ", lastErrorIndex="+
+		//						   lastErrorIndex+
+		//						   ", states="+lastErrorStates);
 		if (this.lastErrorIndex === recognizer.inputStream.index &&
 			this.lastErrorStates &&
 			this.lastErrorStates.contains(recognizer.state)) {
@@ -191,9 +191,9 @@ export class DefaultErrorStrategy implements ANTLRErrorStrategy {
 			// state in ATN; must be a case where LT(1) is in the recovery
 			// token set so nothing got consumed. Consume a single token
 			// at least to prevent an infinite loop; this is a failsafe.
-//			System.err.println("seen error condition before index="+
-//							   lastErrorIndex+", states="+lastErrorStates);
-//			System.err.println("FAILSAFE consumes "+recognizer.getTokenNames()[recognizer.inputStream.LA(1)]);
+			//			System.err.println("seen error condition before index="+
+			//							   lastErrorIndex+", states="+lastErrorStates);
+			//			System.err.println("FAILSAFE consumes "+recognizer.getTokenNames()[recognizer.inputStream.LA(1)]);
 			recognizer.consume();
 		}
 		this.lastErrorIndex = recognizer.inputStream.index;
@@ -254,7 +254,7 @@ export class DefaultErrorStrategy implements ANTLRErrorStrategy {
 	@Override
 	public sync(recognizer: Parser): void {
 		let s: ATNState = recognizer.interpreter.atn.states[recognizer.state];
-//		System.err.println("sync @ "+s.stateNumber+"="+s.getClass().getSimpleName());
+		//		System.err.println("sync @ "+s.stateNumber+"="+s.getClass().getSimpleName());
 		// If already recovering, don't try to sync
 		if (this.inErrorRecoveryMode(recognizer)) {
 			return;
@@ -284,30 +284,30 @@ export class DefaultErrorStrategy implements ANTLRErrorStrategy {
 		}
 
 		switch (s.stateType) {
-		case ATNStateType.BLOCK_START:
-		case ATNStateType.STAR_BLOCK_START:
-		case ATNStateType.PLUS_BLOCK_START:
-		case ATNStateType.STAR_LOOP_ENTRY:
-			// report error and recover if possible
-			if (this.singleTokenDeletion(recognizer)) {
-				return;
-			}
+			case ATNStateType.BLOCK_START:
+			case ATNStateType.STAR_BLOCK_START:
+			case ATNStateType.PLUS_BLOCK_START:
+			case ATNStateType.STAR_LOOP_ENTRY:
+				// report error and recover if possible
+				if (this.singleTokenDeletion(recognizer)) {
+					return;
+				}
 
-			throw new InputMismatchException(recognizer);
+				throw new InputMismatchException(recognizer);
 
-		case ATNStateType.PLUS_LOOP_BACK:
-		case ATNStateType.STAR_LOOP_BACK:
-//			System.err.println("at loop back: "+s.getClass().getSimpleName());
-			this.reportUnwantedToken(recognizer);
-			let expecting: IntervalSet = recognizer.getExpectedTokens();
-			let whatFollowsLoopIterationOrRule: IntervalSet =
-				expecting.or(this.getErrorRecoverySet(recognizer));
-			this.consumeUntil(recognizer, whatFollowsLoopIterationOrRule);
-			break;
+			case ATNStateType.PLUS_LOOP_BACK:
+			case ATNStateType.STAR_LOOP_BACK:
+				//			System.err.println("at loop back: "+s.getClass().getSimpleName());
+				this.reportUnwantedToken(recognizer);
+				let expecting: IntervalSet = recognizer.getExpectedTokens();
+				let whatFollowsLoopIterationOrRule: IntervalSet =
+					expecting.or(this.getErrorRecoverySet(recognizer));
+				this.consumeUntil(recognizer, whatFollowsLoopIterationOrRule);
+				break;
 
-		default:
-			// do nothing if we can't identify the exact kind of ATN state
-			break;
+			default:
+				// do nothing if we can't identify the exact kind of ATN state
+				break;
 		}
 	}
 
@@ -540,7 +540,7 @@ export class DefaultErrorStrategy implements ANTLRErrorStrategy {
 		let next: ATNState = currentState.transition(0).target;
 		let atn: ATN = recognizer.interpreter.atn;
 		let expectingAtLL2: IntervalSet = atn.nextTokens(next, PredictionContext.fromRuleContext(atn, recognizer.context));
-//		console.warn("LT(2) set="+expectingAtLL2.toString(recognizer.getTokenNames()));
+		//		console.warn("LT(2) set="+expectingAtLL2.toString(recognizer.getTokenNames()));
 		if (expectingAtLL2.contains(currentSymbolType)) {
 			this.reportMissingToken(recognizer);
 			return true;
@@ -645,7 +645,7 @@ export class DefaultErrorStrategy implements ANTLRErrorStrategy {
 			expectedTokenType, tokenText,
 			Token.DEFAULT_CHANNEL,
 			-1, -1,
-			current.line, current.charPositionInLine);
+			current.line, current.column);
 	}
 
 	@NotNull
@@ -686,7 +686,7 @@ export class DefaultErrorStrategy implements ANTLRErrorStrategy {
 
 	@NotNull
 	protected escapeWSAndQuote(@NotNull s: string): string {
-//		if ( s==null ) return s;
+		//		if ( s==null ) return s;
 		s = s.replace("\n", "\\n");
 		s = s.replace("\r", "\\r");
 		s = s.replace("\t", "\\t");
@@ -799,17 +799,17 @@ export class DefaultErrorStrategy implements ANTLRErrorStrategy {
 			ctx = ctx._parent;
 		}
 		recoverSet.remove(Token.EPSILON);
-//		System.out.println("recover set "+recoverSet.toString(recognizer.getTokenNames()));
+		//		System.out.println("recover set "+recoverSet.toString(recognizer.getTokenNames()));
 		return recoverSet;
 	}
 
 	/** Consume tokens until one matches the given token set. */
 	protected consumeUntil(@NotNull recognizer: Parser, @NotNull set: IntervalSet): void {
-//		System.err.println("consumeUntil("+set.toString(recognizer.getTokenNames())+")");
+		//		System.err.println("consumeUntil("+set.toString(recognizer.getTokenNames())+")");
 		let ttype: number = recognizer.inputStream.LA(1);
 		while (ttype !== Token.EOF && !set.contains(ttype)) {
 			//System.out.println("consume during recover LA(1)="+getTokenNames()[input.LA(1)]);
-//			recognizer.inputStream.consume();
+			//			recognizer.inputStream.consume();
 			recognizer.consume();
 			ttype = recognizer.inputStream.LA(1);
 		}

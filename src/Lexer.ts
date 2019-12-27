@@ -69,7 +69,7 @@ export abstract class Lexer extends Recognizer<number, LexerATNSimulator>
 	public _tokenStartLine: number = 0;
 
 	/** The character position of first character within the line */
-	public _tokenStartCharPositionInLine: number = 0;
+	public _tokenStartColumn: number = 0;
 
 	/** Once we see EOF on char stream, next token will be EOF.
 	 *  If you have DONE : EOF ; then you see DONE EOF.
@@ -108,7 +108,7 @@ export abstract class Lexer extends Recognizer<number, LexerATNSimulator>
 		this._type = Token.INVALID_TYPE;
 		this._channel = Token.DEFAULT_CHANNEL;
 		this._tokenStartCharIndex = -1;
-		this._tokenStartCharPositionInLine = -1;
+		this._tokenStartColumn = -1;
 		this._tokenStartLine = -1;
 		this._text = undefined;
 
@@ -141,14 +141,14 @@ export abstract class Lexer extends Recognizer<number, LexerATNSimulator>
 				this._token = undefined;
 				this._channel = Token.DEFAULT_CHANNEL;
 				this._tokenStartCharIndex = this._input.index;
-				this._tokenStartCharPositionInLine = this.interpreter.charPositionInLine;
+				this._tokenStartColumn = this.interpreter.column;
 				this._tokenStartLine = this.interpreter.line;
 				this._text = undefined;
 				do {
 					this._type = Token.INVALID_TYPE;
-//				System.out.println("nextToken line "+tokenStartLine+" at "+((char)input.LA(1))+
-//								   " in mode "+mode+
-//								   " at index "+input.index);
+					//				System.out.println("nextToken line "+tokenStartLine+" at "+((char)input.LA(1))+
+					//								   " in mode "+mode+
+					//								   " at index "+input.index);
 					let ttype: number;
 					try {
 						ttype = this.interpreter.match(this._input, this._mode);
@@ -270,14 +270,14 @@ export abstract class Lexer extends Recognizer<number, LexerATNSimulator>
 			token = this._factory.create(
 				this._tokenFactorySourcePair, this._type, this._text, this._channel,
 				this._tokenStartCharIndex, this.charIndex - 1, this._tokenStartLine,
-				this._tokenStartCharPositionInLine);
+				this._tokenStartColumn);
 		}
 		this._token = token;
 		return token;
 	}
 
 	public emitEOF(): Token {
-		let cpos: number = this.charPositionInLine;
+		let cpos: number = this.column;
 		let line: number = this.line;
 		let eof: Token = this._factory.create(
 			this._tokenFactorySourcePair, Token.EOF, undefined,
@@ -297,12 +297,12 @@ export abstract class Lexer extends Recognizer<number, LexerATNSimulator>
 	}
 
 	@Override
-	get charPositionInLine(): number {
-		return this.interpreter.charPositionInLine;
+	get column(): number {
+		return this.interpreter.column;
 	}
 
-	set charPositionInLine(charPositionInLine: number) {
-		this.interpreter.charPositionInLine = charPositionInLine;
+	set column(column: number) {
+		this.interpreter.column = column;
 	}
 
 	/** What is the index of the current character of lookahead? */
@@ -375,21 +375,21 @@ export abstract class Lexer extends Recognizer<number, LexerATNSimulator>
 
 		let listener: ANTLRErrorListener<number> = this.getErrorListenerDispatch();
 		if (listener.syntaxError) {
-			listener.syntaxError(this, undefined, this._tokenStartLine, this._tokenStartCharPositionInLine, msg, e);
+			listener.syntaxError(this, undefined, this._tokenStartLine, this._tokenStartColumn, msg, e);
 		}
 	}
 
 	public getErrorDisplay(s: string | number): string {
 		if (typeof s === "number") {
 			switch (s) {
-			case Token.EOF:
-				return "<EOF>";
-			case 0x0a:
-				return "\\n";
-			case 0x09:
-				return "\\t";
-			case 0x0d:
-				return "\\r";
+				case Token.EOF:
+					return "<EOF>";
+				case 0x0a:
+					return "\\n";
+				case 0x09:
+					return "\\t";
+				case 0x0d:
+					return "\\r";
 			}
 			return String.fromCharCode(s);
 		}

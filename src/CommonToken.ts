@@ -31,10 +31,10 @@ export class CommonToken implements WritableToken {
 	 */
 	private _line: number = 0;
 	/**
-	 * This is the backing field for {@link #getCharPositionInLine} and
-	 * {@link #setCharPositionInLine}.
+	 * This is the backing field for {@link #getColumn} and
+	 * {@link #setColumn}.
 	 */
-	private _charPositionInLine: number = -1; // set to invalid position
+	private _column: number = -1; // set to invalid position
 	/**
 	 * This is the backing field for {@link #getChannel} and
 	 * {@link #setChannel}.
@@ -84,7 +84,7 @@ export class CommonToken implements WritableToken {
 		this.stop = stop;
 		if (source.source != null) {
 			this._line = source.source.line;
-			this._charPositionInLine = source.source.charPositionInLine;
+			this._column = source.source.column;
 		}
 	}
 
@@ -104,7 +104,7 @@ export class CommonToken implements WritableToken {
 		let result: CommonToken = new CommonToken(oldToken.type, undefined, CommonToken.EMPTY_SOURCE, oldToken.channel, oldToken.startIndex, oldToken.stopIndex);
 		result._line = oldToken.line;
 		result.index = oldToken.tokenIndex;
-		result._charPositionInLine = oldToken.charPositionInLine;
+		result._column = oldToken.column;
 
 		if (oldToken instanceof CommonToken) {
 			result._text = oldToken._text;
@@ -171,13 +171,13 @@ export class CommonToken implements WritableToken {
 	}
 
 	@Override
-	get charPositionInLine(): number {
-		return this._charPositionInLine;
+	get column(): number {
+		return this._column;
 	}
 
 	// @Override
-	set charPositionInLine(charPositionInLine: number) {
-		this._charPositionInLine = charPositionInLine;
+	set column(column: number) {
+		this._column = column;
 	}
 
 	@Override
@@ -252,6 +252,6 @@ export class CommonToken implements WritableToken {
 			typeString = recognizer.vocabulary.getDisplayName(this._type);
 		}
 
-		return "[@" + this.tokenIndex + "," + this.start + ":" + this.stop + "='" + txt + "',<" + typeString + ">" + channelStr + "," + this._line + ":" + this.charPositionInLine + "]";
+		return "[@" + this.tokenIndex + "," + this.start + ":" + this.stop + "='" + txt + "',<" + typeString + ">" + channelStr + "," + this._line + ":" + this.column + "]";
 	}
 }

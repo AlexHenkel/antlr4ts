@@ -1153,7 +1153,7 @@ export class TestPerformance {
 			TestPerformance.updateChecksum(checksum, token.startIndex);
 			TestPerformance.updateChecksum(checksum, token.stopIndex);
 			TestPerformance.updateChecksum(checksum, token.line);
-			TestPerformance.updateChecksum(checksum, token.charPositionInLine);
+			TestPerformance.updateChecksum(checksum, token.column);
 			TestPerformance.updateChecksum(checksum, token.type);
 			TestPerformance.updateChecksum(checksum, token.channel);
 		}
@@ -1602,7 +1602,7 @@ class DescriptiveErrorListener implements ParserErrorListener {
 	public static INSTANCE: DescriptiveErrorListener =  new DescriptiveErrorListener();
 
 	@Override
-	public syntaxError<T extends Token>(recognizer: Recognizer<T, any>, offendingSymbol: T | undefined, line: number, charPositionInLine: number, msg: string, e: RecognitionException | undefined): void {
+	public syntaxError<T extends Token>(recognizer: Recognizer<T, any>, offendingSymbol: T | undefined, line: number, column: number, msg: string, e: RecognitionException | undefined): void {
 		if (!TestPerformance.REPORT_SYNTAX_ERRORS) {
 			return;
 		}
@@ -1610,10 +1610,10 @@ class DescriptiveErrorListener implements ParserErrorListener {
 		let inputStream = recognizer.inputStream;
 		let sourceName: string =  inputStream != null ? inputStream.sourceName : "";
 		if (sourceName.length > 0) {
-			sourceName = `${sourceName}:${line}:${charPositionInLine}: `;
+			sourceName = `${sourceName}:${line}:${column}: `;
 		}
 
-		console.error(sourceName + "line " + line + ":" + charPositionInLine + " " + msg);
+		console.error(sourceName + "line " + line + ":" + column + " " + msg);
 	}
 
 }
@@ -1622,7 +1622,7 @@ class DescriptiveLexerErrorListener implements ANTLRErrorListener<number> {
 	public static INSTANCE: DescriptiveLexerErrorListener =  new DescriptiveLexerErrorListener();
 
 	@Override
-	public syntaxError<T extends number>(recognizer: Recognizer<T, any>, offendingSymbol: T | undefined, line: number, charPositionInLine: number, msg: string, e: RecognitionException | undefined): void {
+	public syntaxError<T extends number>(recognizer: Recognizer<T, any>, offendingSymbol: T | undefined, line: number, column: number, msg: string, e: RecognitionException | undefined): void {
 		if (!TestPerformance.REPORT_SYNTAX_ERRORS) {
 			return;
 		}
@@ -1630,10 +1630,10 @@ class DescriptiveLexerErrorListener implements ANTLRErrorListener<number> {
 		let inputStream = recognizer.inputStream;
 		let sourceName: string =  inputStream != null ? inputStream.sourceName : "";
 		if (sourceName.length > 0) {
-			sourceName = `${sourceName}:${line}:${charPositionInLine}: `;
+			sourceName = `${sourceName}:${line}:${column}: `;
 		}
 
-		process.stderr.write(sourceName + "line " + line + ":" + charPositionInLine + " " + msg);
+		process.stderr.write(sourceName + "line " + line + ":" + column + " " + msg);
 	}
 
 }

@@ -170,8 +170,8 @@ export abstract class Recognizer<TSymbol, ATNInterpreter extends ATNSimulator> {
 			return "";
 		}
 		let line = token.line;
-		let charPositionInLine: number = token.charPositionInLine;
-		return "line " + line + ":" + charPositionInLine;
+		let column: number = token.column;
+		return "line " + line + ":" + column;
 	}
 
 	/**

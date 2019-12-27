@@ -33,7 +33,7 @@ export interface ANTLRErrorListener<TSymbol> {
 	 * 		  started production for the decision.
 	 * @param line
 	 * 		  The line number in the input where the error occurred.
-	 * @param charPositionInLine
+	 * @param column
 	 * 		  The character position within that line where the error occurred.
 	 * @param msg
 	 * 		  The message to emit.
@@ -48,7 +48,7 @@ export interface ANTLRErrorListener<TSymbol> {
 		recognizer: Recognizer<T, any>,
 		offendingSymbol: T | undefined,
 		line: number,
-		charPositionInLine: number,
+		column: number,
 		/*@NotNull*/
 		msg: string,
 		e: RecognitionException | undefined) => void;

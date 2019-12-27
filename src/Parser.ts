@@ -491,15 +491,15 @@ export abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 
 		this._syntaxErrors++;
 		let line: number = -1;
-		let charPositionInLine: number = -1;
+		let column: number = -1;
 		if (offendingToken != null) {
 			line = offendingToken.line;
-			charPositionInLine = offendingToken.charPositionInLine;
+			column = offendingToken.column;
 		}
 
 		let listener = this.getErrorListenerDispatch();
 		if (listener.syntaxError) {
-			listener.syntaxError(this, offendingToken, line, charPositionInLine, msg, e);
+			listener.syntaxError(this, offendingToken, line, column, msg, e);
 		}
 	}
 

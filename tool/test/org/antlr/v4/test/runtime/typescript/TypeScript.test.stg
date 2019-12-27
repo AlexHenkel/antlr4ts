@@ -201,7 +201,7 @@ BailErrorStrategy() ::= <%this.errorHandler = new BailErrorStrategy();%>
 
 ToStringTree(s) ::= <%<s>.toStringTree(this)%>
 
-Column() ::= "this.charPositionInLine"
+Column() ::= "this.column"
 
 Text() ::= "this.text"
 
@@ -217,7 +217,7 @@ LTEquals(i, v) ::= <%this._input.LT(<i>).text === <v>%>
 
 LANotEquals(i, v) ::= <%this._input.LA(<i>) !== <v>%>
 
-TokenStartColumnEquals(i) ::= <%this._tokenStartCharPositionInLine==<i>%>
+TokenStartColumnEquals(i) ::= <%this._tokenStartColumn==<i>%>
 
 ImportListener(X) ::= ""
 
@@ -302,7 +302,7 @@ private handleAcceptPositionForIdentifier(): boolean {
 
 	if (this.inputStream.index > this._tokenStartCharIndex + identifierLength) {
 		let offset = identifierLength - 1;
-		this.interpreter.resetAcceptPosition(this._input, this._tokenStartCharIndex + offset, this._tokenStartLine, this._tokenStartCharPositionInLine + offset);
+		this.interpreter.resetAcceptPosition(this._input, this._tokenStartCharIndex + offset, this._tokenStartLine, this._tokenStartColumn + offset);
 		return true;
 	}
 
@@ -312,7 +312,7 @@ private handleAcceptPositionForIdentifier(): boolean {
 private handleAcceptPositionForKeyword(keyword: string): boolean {
 	if (this.inputStream.index > this._tokenStartCharIndex + keyword.length) {
 		let offset = keyword.length - 1;
-		this.interpreter.resetAcceptPosition(this._input, this._tokenStartCharIndex + offset, this._tokenStartLine, this._tokenStartCharPositionInLine + offset);
+		this.interpreter.resetAcceptPosition(this._input, this._tokenStartCharIndex + offset, this._tokenStartLine, this._tokenStartColumn + offset);
 		return true;
 	}
 
@@ -339,10 +339,10 @@ export class PositionAdjustingLexerATNSimulator extends LexerATNSimulator {
 		super(atn, recog);
 	}
 
-	public resetAcceptPosition(input: CharStream, index: number, line: number, charPositionInLine: number): void {
+	public resetAcceptPosition(input: CharStream, index: number, line: number, column: number): void {
 		input.seek(index);
 		this.line = line;
-		this.charPositionInLine = charPositionInLine;
+		this.column = column;
 		this.consume(input);
 	}
 

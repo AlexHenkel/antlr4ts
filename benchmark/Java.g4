@@ -776,15 +776,15 @@ shiftExpression
 shiftOp
     :   t1='<' t2='<'
 //        { $t1.line == $t2.line &&
-//          $t1.charPositionInLine + 1 == $t2.charPositionInLine }?
+//          $t1.column + 1 == $t2.column }?
     |   t1='>' t2='>' t3='>'
 //        { $t1.line == $t2.line &&
-//          $t1.charPositionInLine + 1 == $t2.charPositionInLine &&
+//          $t1.column + 1 == $t2.column &&
 //          $t2.line == $t3.line &&
-//          $t2.charPositionInLine + 1 == $t3.charPositionInLine }?
+//          $t2.column + 1 == $t3.column }?
     |   t1='>' t2='>'
 //        { $t1.line == $t2.line &&
-//          $t1.charPositionInLine + 1 == $t2.charPositionInLine }?
+//          $t1.column + 1 == $t2.column }?
     ;
 
 

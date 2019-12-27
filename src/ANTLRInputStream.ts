@@ -115,7 +115,7 @@ export class ANTLRInputStream implements CharStream {
 	}
 
 	/** consume() ahead until p==index; can't just set p=index as we must
-	 *  update line and charPositionInLine. If we seek backwards, just set p
+	 *  update line and column. If we seek backwards, just set p
 	 */
 	@Override
 	public seek(index: number): void {

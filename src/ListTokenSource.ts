@@ -78,11 +78,11 @@ export class ListTokenSource implements TokenSource {
 	 * {@inheritDoc}
 	 */
 	@Override
-	get charPositionInLine(): number {
+	get column(): number {
 		if (this.i < this.tokens.length) {
-			return this.tokens[this.i].charPositionInLine;
+			return this.tokens[this.i].column;
 		} else if (this.eofToken != null) {
-			return this.eofToken.charPositionInLine;
+			return this.eofToken.column;
 		} else if (this.tokens.length > 0) {
 			// have to calculate the result from the line/column of the previous
 			// token, along with the text of the token.
@@ -95,7 +95,7 @@ export class ListTokenSource implements TokenSource {
 				}
 			}
 
-			return lastToken.charPositionInLine + lastToken.stopIndex - lastToken.startIndex + 1;
+			return lastToken.column + lastToken.stopIndex - lastToken.startIndex + 1;
 		}
 
 		// only reach this if tokens is empty, meaning EOF occurs at the first
@@ -119,7 +119,7 @@ export class ListTokenSource implements TokenSource {
 				}
 
 				let stop: number = Math.max(-1, start - 1);
-				this.eofToken = this._factory.create({ source: this, stream: this.inputStream }, Token.EOF, "EOF", Token.DEFAULT_CHANNEL, start, stop, this.line, this.charPositionInLine);
+				this.eofToken = this._factory.create({ source: this, stream: this.inputStream }, Token.EOF, "EOF", Token.DEFAULT_CHANNEL, start, stop, this.line, this.column);
 			}
 
 			return this.eofToken;

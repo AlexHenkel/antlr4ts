@@ -33,12 +33,12 @@ export class ProxyErrorListener<TSymbol, TListener extends ANTLRErrorListener<TS
 		@NotNull recognizer: Recognizer<T, any>,
 		offendingSymbol: T | undefined,
 		line: number,
-		charPositionInLine: number,
+		column: number,
 		@NotNull msg: string,
 		e: RecognitionException | undefined): void {
 		this.delegates.forEach((listener) => {
 			if (listener.syntaxError) {
-				listener.syntaxError(recognizer, offendingSymbol, line, charPositionInLine, msg, e);
+				listener.syntaxError(recognizer, offendingSymbol, line, column, msg, e);
 			}
 		});
 	}

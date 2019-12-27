@@ -48,7 +48,7 @@ export class LexerATNSimulator extends ATNSimulator {
 	private _line: number = 1;
 
 	/** The index of the character relative to the beginning of the line 0..n-1 */
-	private _charPositionInLine: number = 0;
+	private _column: number = 0;
 
 	protected mode: number = Lexer.DEFAULT_MODE;
 
@@ -66,7 +66,7 @@ export class LexerATNSimulator extends ATNSimulator {
 	}
 
 	public copyState(@NotNull simulator: LexerATNSimulator): void {
-		this._charPositionInLine = simulator.charPositionInLine;
+		this._column = simulator.column;
 		this._line = simulator._line;
 		this.mode = simulator.mode;
 		this.startIndex = simulator.startIndex;
@@ -97,7 +97,7 @@ export class LexerATNSimulator extends ATNSimulator {
 		this.prevAccept.reset();
 		this.startIndex = -1;
 		this._line = 1;
-		this._charPositionInLine = 0;
+		this._column = 0;
 		this.mode = Lexer.DEFAULT_MODE;
 	}
 
@@ -333,7 +333,7 @@ export class LexerATNSimulator extends ATNSimulator {
 		// seek to after last char in token
 		input.seek(index);
 		this._line = line;
-		this._charPositionInLine = charPos;
+		this._column = charPos;
 
 		if (lexerActionExecutor != null && this.recog != null) {
 			lexerActionExecutor.execute(this.recog, input, startIndex);
@@ -442,98 +442,98 @@ export class LexerATNSimulator extends ATNSimulator {
 		let c: ATNConfig | undefined;
 
 		switch (t.serializationType) {
-		case TransitionType.RULE:
-			let ruleTransition: RuleTransition = t as RuleTransition;
-			if (this.optimize_tail_calls && ruleTransition.optimizedTailCall && !config.context.hasEmpty) {
-				c = config.transform(t.target, true);
-			}
-			else {
-				let newContext: PredictionContext = config.context.getChild(ruleTransition.followState.stateNumber);
-				c = config.transform(t.target, true, newContext);
-			}
+			case TransitionType.RULE:
+				let ruleTransition: RuleTransition = t as RuleTransition;
+				if (this.optimize_tail_calls && ruleTransition.optimizedTailCall && !config.context.hasEmpty) {
+					c = config.transform(t.target, true);
+				}
+				else {
+					let newContext: PredictionContext = config.context.getChild(ruleTransition.followState.stateNumber);
+					c = config.transform(t.target, true, newContext);
+				}
 
-			break;
-
-		case TransitionType.PRECEDENCE:
-			throw new Error("Precedence predicates are not supported in lexers.");
-
-		case TransitionType.PREDICATE:
-			/*  Track traversing semantic predicates. If we traverse,
-				we cannot add a DFA state for this "reach" computation
-				because the DFA would not test the predicate again in the
-				future. Rather than creating collections of semantic predicates
-				like v3 and testing them on prediction, v4 will test them on the
-				fly all the time using the ATN not the DFA. This is slower but
-				semantically it's not used that often. One of the key elements to
-				this predicate mechanism is not adding DFA states that see
-				predicates immediately afterwards in the ATN. For example,
-
-				a : ID {p1}? | ID {p2}? ;
-
-				should create the start state for rule 'a' (to save start state
-				competition), but should not create target of ID state. The
-				collection of ATN states the following ID references includes
-				states reached by traversing predicates. Since this is when we
-				test them, we cannot cash the DFA state target of ID.
-			*/
-			let pt: PredicateTransition = t as PredicateTransition;
-			if (LexerATNSimulator.debug) {
-				console.log("EVAL rule " + pt.ruleIndex + ":" + pt.predIndex);
-			}
-			configs.hasSemanticContext = true;
-			if (this.evaluatePredicate(input, pt.ruleIndex, pt.predIndex, speculative)) {
-				c = config.transform(t.target, true);
-			}
-			else {
-				c = undefined;
-			}
-
-			break;
-
-		case TransitionType.ACTION:
-			if (config.context.hasEmpty) {
-				// execute actions anywhere in the start rule for a token.
-				//
-				// TODO: if the entry rule is invoked recursively, some
-				// actions may be executed during the recursive call. The
-				// problem can appear when hasEmpty is true but
-				// isEmpty is false. In this case, the config needs to be
-				// split into two contexts - one with just the empty path
-				// and another with everything but the empty path.
-				// Unfortunately, the current algorithm does not allow
-				// getEpsilonTarget to return two configurations, so
-				// additional modifications are needed before we can support
-				// the split operation.
-				let lexerActionExecutor: LexerActionExecutor = LexerActionExecutor.append(config.lexerActionExecutor, this.atn.lexerActions[(t as ActionTransition).actionIndex]);
-				c = config.transform(t.target, true, lexerActionExecutor);
 				break;
-			}
-			else {
-				// ignore actions in referenced rules
-				c = config.transform(t.target, true);
+
+			case TransitionType.PRECEDENCE:
+				throw new Error("Precedence predicates are not supported in lexers.");
+
+			case TransitionType.PREDICATE:
+				/*  Track traversing semantic predicates. If we traverse,
+					we cannot add a DFA state for this "reach" computation
+					because the DFA would not test the predicate again in the
+					future. Rather than creating collections of semantic predicates
+					like v3 and testing them on prediction, v4 will test them on the
+					fly all the time using the ATN not the DFA. This is slower but
+					semantically it's not used that often. One of the key elements to
+					this predicate mechanism is not adding DFA states that see
+					predicates immediately afterwards in the ATN. For example,
+
+					a : ID {p1}? | ID {p2}? ;
+
+					should create the start state for rule 'a' (to save start state
+					competition), but should not create target of ID state. The
+					collection of ATN states the following ID references includes
+					states reached by traversing predicates. Since this is when we
+					test them, we cannot cash the DFA state target of ID.
+				*/
+				let pt: PredicateTransition = t as PredicateTransition;
+				if (LexerATNSimulator.debug) {
+					console.log("EVAL rule " + pt.ruleIndex + ":" + pt.predIndex);
+				}
+				configs.hasSemanticContext = true;
+				if (this.evaluatePredicate(input, pt.ruleIndex, pt.predIndex, speculative)) {
+					c = config.transform(t.target, true);
+				}
+				else {
+					c = undefined;
+				}
+
 				break;
-			}
 
-		case TransitionType.EPSILON:
-			c = config.transform(t.target, true);
-			break;
-
-		case TransitionType.ATOM:
-		case TransitionType.RANGE:
-		case TransitionType.SET:
-			if (treatEofAsEpsilon) {
-				if (t.matches(IntStream.EOF, Lexer.MIN_CHAR_VALUE, Lexer.MAX_CHAR_VALUE)) {
-					c = config.transform(t.target, false);
+			case TransitionType.ACTION:
+				if (config.context.hasEmpty) {
+					// execute actions anywhere in the start rule for a token.
+					//
+					// TODO: if the entry rule is invoked recursively, some
+					// actions may be executed during the recursive call. The
+					// problem can appear when hasEmpty is true but
+					// isEmpty is false. In this case, the config needs to be
+					// split into two contexts - one with just the empty path
+					// and another with everything but the empty path.
+					// Unfortunately, the current algorithm does not allow
+					// getEpsilonTarget to return two configurations, so
+					// additional modifications are needed before we can support
+					// the split operation.
+					let lexerActionExecutor: LexerActionExecutor = LexerActionExecutor.append(config.lexerActionExecutor, this.atn.lexerActions[(t as ActionTransition).actionIndex]);
+					c = config.transform(t.target, true, lexerActionExecutor);
 					break;
 				}
-			}
+				else {
+					// ignore actions in referenced rules
+					c = config.transform(t.target, true);
+					break;
+				}
 
-			c = undefined;
-			break;
+			case TransitionType.EPSILON:
+				c = config.transform(t.target, true);
+				break;
 
-		default:
-			c = undefined;
-			break;
+			case TransitionType.ATOM:
+			case TransitionType.RANGE:
+			case TransitionType.SET:
+				if (treatEofAsEpsilon) {
+					if (t.matches(IntStream.EOF, Lexer.MIN_CHAR_VALUE, Lexer.MAX_CHAR_VALUE)) {
+						c = config.transform(t.target, false);
+						break;
+					}
+				}
+
+				c = undefined;
+				break;
+
+			default:
+				c = undefined;
+				break;
 		}
 
 		return c;
@@ -546,7 +546,7 @@ export class LexerATNSimulator extends ATNSimulator {
 	 * {@link #consume} for the matched character. This method should call
 	 * {@link #consume} before evaluating the predicate to ensure position
 	 * sensitive values, including {@link Lexer#getText}, {@link Lexer#getLine},
-	 * and {@link Lexer#getCharPositionInLine}, properly reflect the current
+	 * and {@link Lexer#getColumn}, properly reflect the current
 	 * lexer state. This method should restore `input` and the simulator
 	 * to the original state before returning (i.e. undo the actions made by the
 	 * call to {@link #consume}.
@@ -570,7 +570,7 @@ export class LexerATNSimulator extends ATNSimulator {
 			return this.recog.sempred(undefined, ruleIndex, predIndex);
 		}
 
-		let savedCharPositionInLine: number = this._charPositionInLine;
+		let savedColumn: number = this._column;
 		let savedLine: number = this._line;
 		let index: number = input.index;
 		let marker: number = input.mark();
@@ -579,7 +579,7 @@ export class LexerATNSimulator extends ATNSimulator {
 			return this.recog.sempred(undefined, ruleIndex, predIndex);
 		}
 		finally {
-			this._charPositionInLine = savedCharPositionInLine;
+			this._column = savedColumn;
 			this._line = savedLine;
 			input.seek(index);
 			input.release(marker);
@@ -592,7 +592,7 @@ export class LexerATNSimulator extends ATNSimulator {
 		@NotNull dfaState: DFAState): void {
 		settings.index = input.index;
 		settings.line = this._line;
-		settings.charPos = this._charPositionInLine;
+		settings.charPos = this._column;
 		settings.dfaState = dfaState;
 	}
 
@@ -696,21 +696,21 @@ export class LexerATNSimulator extends ATNSimulator {
 		this._line = line;
 	}
 
-	get charPositionInLine(): number {
-		return this._charPositionInLine;
+	get column(): number {
+		return this._column;
 	}
 
-	set charPositionInLine(charPositionInLine: number) {
-		this._charPositionInLine = charPositionInLine;
+	set column(column: number) {
+		this._column = column;
 	}
 
 	public consume(@NotNull input: CharStream): void {
 		let curChar: number = input.LA(1);
 		if (curChar === "\n".charCodeAt(0)) {
 			this._line++;
-			this._charPositionInLine = 0;
+			this._column = 0;
 		} else {
-			this._charPositionInLine++;
+			this._column++;
 		}
 		input.consume();
 	}

@@ -55,11 +55,11 @@ export class CommonTokenFactory implements TokenFactory {
 		start: number,
 		stop: number,
 		line: number,
-		charPositionInLine: number): CommonToken {
+		column: number): CommonToken {
 
 		let t: CommonToken = new CommonToken(type, text, source, channel, start, stop);
 		t.line = line;
-		t.charPositionInLine = charPositionInLine;
+		t.column = column;
 		if (text == null && this.copyText && source.stream != null) {
 			t.text = source.stream.getText(Interval.of(start, stop));
 		}

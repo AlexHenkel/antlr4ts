@@ -23,20 +23,20 @@ export class ConsoleErrorListener implements ANTLRErrorListener<any> {
 	 * {@inheritDoc}
 	 *
 	 * This implementation prints messages to {@link System#err} containing the
-	 * values of `line`, `charPositionInLine`, and `msg` using
+	 * values of `line`, `column`, and `msg` using
 	 * the following format.
 	 *
 	 * <pre>
-	 * line *line*:*charPositionInLine* *msg*
+	 * line *line*:*column* *msg*
 	 * </pre>
 	 */
 	public syntaxError<T>(
 		recognizer: Recognizer<T, any>,
 		offendingSymbol: T,
 		line: number,
-		charPositionInLine: number,
+		column: number,
 		msg: string,
 		e: RecognitionException | undefined): void {
-		console.error(`line ${line}:${charPositionInLine} ${msg}`);
+		console.error(`line ${line}:${column} ${msg}`);
 	}
 }

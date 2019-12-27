@@ -14,7 +14,7 @@ export interface WritableToken extends Token {
 
 	line: number;
 
-	charPositionInLine: number;
+	column: number;
 
 	channel: number;
 
